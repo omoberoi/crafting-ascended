@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["IRI", "GTG", "IRI"],
+  "key": {
+    "I": {"item": "minecraft:iron_ingot"},
+    "R": {"item": "minecraft:redstone"},
+    "G": {"item": "minecraft:gold_ingot"},
+    "T": {"item": "craftingascended:enhanced_table"}
+  },
+  "result": {"id": "craftingascended:super_table", "count": 1}
+}

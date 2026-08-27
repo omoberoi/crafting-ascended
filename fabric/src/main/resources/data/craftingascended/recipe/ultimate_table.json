@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["GBG", "DTD", "GBG"],
+  "key": {
+    "G": {"item": "minecraft:gold_ingot"},
+    "B": {"item": "minecraft:blaze_rod"},
+    "D": {"item": "minecraft:diamond"},
+    "T": {"item": "craftingascended:super_table"}
+  },
+  "result": {"id": "craftingascended:ultimate_table", "count": 1}
+}

@@ -1,0 +1,23 @@
+{
+	"schemaVersion": 1,
+	"id": "craftingascended",
+	"version": "${version}",
+	"name": "Crafting Ascended",
+	"description": "Progress through five increasingly powerful crafting tables and unlock overpowered crafts.",
+	"authors": [
+		"Crazy Crafts"
+	],
+	"license": "All-Rights-Reserved",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.crazycrafts.craftingascended.CraftingAscendedFabric"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["BEB", "ATA", "BEB"],
+  "key": {
+    "B": {"item": "minecraft:blaze_rod"},
+    "E": {"item": "minecraft:ender_eye"},
+    "A": {"item": "minecraft:amethyst_shard"},
+    "T": {"item": "craftingascended:ultimate_table"}
+  },
+  "result": {"id": "craftingascended:celestial_table", "count": 1}
+}

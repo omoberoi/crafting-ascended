@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["OEO", "DTD", "OEO"],
+  "key": {
+    "O": {"item": "minecraft:obsidian"},
+    "E": {"item": "minecraft:end_crystal"},
+    "D": {"item": "minecraft:diamond"},
+    "T": {"item": "craftingascended:celestial_table"}
+  },
+  "result": {"id": "craftingascended:forbidden_table", "count": 1}
+}

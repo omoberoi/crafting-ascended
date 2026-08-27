@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["PCP", "ITI", "PCP"],
+  "key": {
+    "P": {"item": "minecraft:oak_planks"},
+    "C": {"item": "minecraft:cobblestone"},
+    "I": {"item": "minecraft:iron_ingot"},
+    "T": {"item": "minecraft:crafting_table"}
+  },
+  "result": {"id": "craftingascended:enhanced_table", "count": 1}
+}

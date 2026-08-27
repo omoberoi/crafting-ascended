@@ -1,0 +1,19 @@
+{
+  "itemGroup.craftingascended": "Crafting Ascended",
+  "block.craftingascended.enhanced_table": "Tier 1: Enhanced Crafting Table",
+  "block.craftingascended.super_table": "Tier 2: Super Crafting Table",
+  "block.craftingascended.ultimate_table": "Tier 3: Ultimate Crafting Table",
+  "block.craftingascended.celestial_table": "Tier 4: Celestial Crafting Table",
+  "block.craftingascended.forbidden_table": "Tier 5: Forbidden Crafting Table",
+  "container.craftingascended.enhanced": "Tier 1 — Enhanced Crafting",
+  "container.craftingascended.super": "Tier 2 — Super Crafting",
+  "container.craftingascended.ultimate": "Tier 3 — Ultimate Crafting",
+  "container.craftingascended.celestial": "Tier 4 — Celestial Crafting",
+  "container.craftingascended.forbidden": "Tier 5 — Forbidden Crafting",
+  "tooltip.craftingascended.tier": "Crafting Tier %s",
+  "tooltip.craftingascended.unlocks.1": "Unlocks: Ore Vacuum, Lumber Axe, Miner's Boots, Quick Furnace",
+  "tooltip.craftingascended.unlocks.2": "Unlocks: Vein Pickaxe, Mob Magnet, Auto Farmer, Super Shield",
+  "tooltip.craftingascended.unlocks.3": "Unlocks: Titan Blade, Chunk Pickaxe, Infinity Bow, Ultimate Armor",
+  "tooltip.craftingascended.unlocks.4": "Unlocks: Time Staff, Celestial Wings, Star Cannon, Life Totem",
+  "tooltip.craftingascended.unlocks.5": "Unlocks: World Breaker, Admin Apple, Duplication Core, Void Armor"
+}
