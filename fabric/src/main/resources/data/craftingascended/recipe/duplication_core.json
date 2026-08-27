@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["DSD","ECE","DSD"],"key":{"D":{"item":"minecraft:diamond"},"S":{"item":"minecraft:echo_shard"},"E":{"item":"minecraft:end_crystal"},"C":{"item":"minecraft:ender_chest"}},"result":{"id":"craftingascended:duplication_core","count":1}}

@@ -2,6 +2,7 @@ package com.crazycrafts.craftingascended;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -30,6 +31,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.stats.Stats;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public final class CraftingAscendedFabric implements ModInitializer {
     public static final String MOD_ID = "craftingascended";
@@ -46,6 +49,8 @@ public final class CraftingAscendedFabric implements ModInitializer {
     public static final BlockItem CELESTIAL_TABLE_ITEM = item(CELESTIAL_TABLE, 4);
     public static final BlockItem FORBIDDEN_TABLE_ITEM = item(FORBIDDEN_TABLE, 5);
 
+    private static final Map<String, Item> POWER_ITEMS = new LinkedHashMap<>();
+
     @Override
     public void onInitialize() {
         register("enhanced_table", ENHANCED_TABLE, ENHANCED_TABLE_ITEM);
@@ -53,6 +58,14 @@ public final class CraftingAscendedFabric implements ModInitializer {
         register("ultimate_table", ULTIMATE_TABLE, ULTIMATE_TABLE_ITEM);
         register("celestial_table", CELESTIAL_TABLE, CELESTIAL_TABLE_ITEM);
         register("forbidden_table", FORBIDDEN_TABLE, FORBIDDEN_TABLE_ITEM);
+
+        registerPowerItems();
+        ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(player -> {
+            if (player.getTags().contains(FlightItem.POWERED_TAG) && player.isFallFlying()) {
+                player.setDeltaMovement(player.getDeltaMovement().scale(0.85).add(player.getLookAngle().scale(0.12)));
+                player.hurtMarked = true;
+            }
+        }));
 
         CreativeModeTab tab = FabricItemGroup.builder()
                 .title(Component.translatable("itemGroup.craftingascended"))
@@ -63,6 +76,7 @@ public final class CraftingAscendedFabric implements ModInitializer {
                     output.accept(ULTIMATE_TABLE_ITEM);
                     output.accept(CELESTIAL_TABLE_ITEM);
                     output.accept(FORBIDDEN_TABLE_ITEM);
+                    POWER_ITEMS.values().forEach(output::accept);
                 })
                 .build();
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, id("main"), tab);
@@ -85,6 +99,39 @@ public final class CraftingAscendedFabric implements ModInitializer {
 
     private static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    private static void registerPowerItems() {
+        power("ore_vacuum", "tooltip.craftingascended.ore_vacuum");
+        power("lumber_axe", "tooltip.craftingascended.lumber_axe");
+        power("miners_boots", "tooltip.craftingascended.miners_boots");
+        power("quick_furnace", "tooltip.craftingascended.quick_furnace");
+        power("vein_pickaxe", "tooltip.craftingascended.vein_pickaxe");
+        power("mob_magnet", "tooltip.craftingascended.mob_magnet");
+        power("auto_farmer", "tooltip.craftingascended.auto_farmer");
+        power("super_shield", "tooltip.craftingascended.super_shield");
+        power("titan_blade", "tooltip.craftingascended.titan_blade");
+        power("chunk_pickaxe", "tooltip.craftingascended.chunk_pickaxe");
+        power("infinity_bow", "tooltip.craftingascended.infinity_bow");
+        power("ultimate_armor", "tooltip.craftingascended.ultimate_armor");
+        power("time_staff", "tooltip.craftingascended.time_staff");
+        flight("celestial_wings");
+        power("star_cannon", "tooltip.craftingascended.star_cannon");
+        power("life_totem", "tooltip.craftingascended.life_totem");
+        power("world_breaker", "tooltip.craftingascended.world_breaker");
+        power("admin_apple", "tooltip.craftingascended.admin_apple");
+        power("duplication_core", "tooltip.craftingascended.duplication_core");
+        flight("void_armor");
+    }
+
+    private static void power(String name, String tooltipKey) {
+        Item item = new PowerItem(name, tooltipKey, new Item.Properties().durability(1024).fireResistant());
+        POWER_ITEMS.put(name, Registry.register(BuiltInRegistries.ITEM, id(name), item));
+    }
+
+    private static void flight(String name) {
+        Item item = new FlightItem(new Item.Properties());
+        POWER_ITEMS.put(name, Registry.register(BuiltInRegistries.ITEM, id(name), item));
     }
 
     private static final class TieredCraftingTableBlock extends CraftingTableBlock {

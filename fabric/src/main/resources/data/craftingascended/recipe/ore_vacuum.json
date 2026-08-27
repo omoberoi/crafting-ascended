@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["IRI","CHC","IRI"],"key":{"I":{"item":"minecraft:iron_ingot"},"R":{"item":"minecraft:redstone"},"C":{"item":"minecraft:copper_ingot"},"H":{"item":"minecraft:hopper"}},"result":{"id":"craftingascended:ore_vacuum","count":1}}

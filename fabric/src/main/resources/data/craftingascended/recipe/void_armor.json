@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["OEO","SCS","OEO"],"key":{"O":{"item":"minecraft:obsidian"},"E":{"item":"minecraft:end_crystal"},"S":{"item":"minecraft:echo_shard"},"C":{"item":"minecraft:netherite_chestplate"}},"result":{"id":"craftingascended:void_armor","count":1}}

@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["IWI","DHD","IWI"],"key":{"I":{"item":"minecraft:iron_ingot"},"W":{"item":"minecraft:wheat"},"D":{"item":"minecraft:dispenser"},"H":{"item":"minecraft:hopper"}},"result":{"id":"craftingascended:auto_farmer","count":1}}
