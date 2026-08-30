@@ -22,6 +22,9 @@ public final class FlightItem extends ElytraItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if (!player.isShiftKeyDown()) {
+            return super.use(level, player, hand);
+        }
         if (!level.isClientSide) {
             boolean creative = player.getTags().contains(CREATIVE_TAG);
             player.removeTag(CREATIVE_TAG);
@@ -43,6 +46,6 @@ public final class FlightItem extends ElytraItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.literal("Creative flight or self-powered Elytra flight").withStyle(ChatFormatting.AQUA));
-        tooltip.add(Component.literal("Right-click to toggle modes; no fireworks needed").withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.literal("Right-click: equip • Crouch-right-click: toggle mode").withStyle(ChatFormatting.GOLD));
     }
 }

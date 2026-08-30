@@ -11,10 +11,13 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.MenuProvider;
@@ -25,6 +28,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -61,9 +65,31 @@ public final class CraftingAscendedFabric implements ModInitializer {
 
         registerPowerItems();
         ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(player -> {
-            if (player.getTags().contains(FlightItem.POWERED_TAG) && player.isFallFlying()) {
+            boolean wearingFlightItem = player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof FlightItem;
+            if (wearingFlightItem && player.getTags().contains(FlightItem.CREATIVE_TAG)) {
+                player.getAbilities().mayfly = true;
+                player.onUpdateAbilities();
+            } else if (!wearingFlightItem && !player.isCreative() && player.getTags().contains(FlightItem.CREATIVE_TAG)) {
+                player.getAbilities().flying = false;
+                player.getAbilities().mayfly = false;
+                player.onUpdateAbilities();
+            }
+            if (wearingFlightItem && player.getTags().contains(FlightItem.POWERED_TAG) && player.isFallFlying()) {
                 player.setDeltaMovement(player.getDeltaMovement().scale(0.85).add(player.getLookAngle().scale(0.12)));
                 player.hurtMarked = true;
+            }
+            if (player.getTags().contains(BridgeBuilderItem.ACTIVE_TAG) && player.level() instanceof ServerLevel serverLevel) {
+                BlockPos below = player.blockPosition().below();
+                if (serverLevel.getBlockState(below).isAir()) {
+                    for (int slot = 0; slot < player.getInventory().items.size(); slot++) {
+                        ItemStack candidate = player.getInventory().items.get(slot);
+                        if (candidate.getItem() instanceof BlockItem blockItem && blockItem.getBlock() != Blocks.AIR) {
+                            serverLevel.setBlockAndUpdate(below, blockItem.getBlock().defaultBlockState());
+                            if (!player.isCreative()) candidate.shrink(1);
+                            break;
+                        }
+                    }
+                }
             }
         }));
 
@@ -104,15 +130,16 @@ public final class CraftingAscendedFabric implements ModInitializer {
     private static void registerPowerItems() {
         power("ore_vacuum", "tooltip.craftingascended.ore_vacuum");
         power("lumber_axe", "tooltip.craftingascended.lumber_axe");
-        power("miners_boots", "tooltip.craftingascended.miners_boots");
-        power("quick_furnace", "tooltip.craftingascended.quick_furnace");
+        special("miners_boots", new MinersBootsItem(new Item.Properties()));
+        special("quick_furnace", new QuickFurnaceItem(Blocks.BLAST_FURNACE, new Item.Properties()));
         power("vein_pickaxe", "tooltip.craftingascended.vein_pickaxe");
         power("mob_magnet", "tooltip.craftingascended.mob_magnet");
         power("auto_farmer", "tooltip.craftingascended.auto_farmer");
         power("super_shield", "tooltip.craftingascended.super_shield");
-        power("titan_blade", "tooltip.craftingascended.titan_blade");
+        special("titan_blade", new TitanBladeItem(Tiers.NETHERITE,
+                new Item.Properties().attributes(SwordItem.createAttributes(Tiers.NETHERITE, 12, -2.2F)).fireResistant()));
         power("chunk_pickaxe", "tooltip.craftingascended.chunk_pickaxe");
-        power("infinity_bow", "tooltip.craftingascended.infinity_bow");
+        special("infinity_bow", new InfinityBowItem(new Item.Properties()));
         power("ultimate_armor", "tooltip.craftingascended.ultimate_armor");
         power("time_staff", "tooltip.craftingascended.time_staff");
         flight("celestial_wings");
@@ -122,6 +149,7 @@ public final class CraftingAscendedFabric implements ModInitializer {
         power("admin_apple", "tooltip.craftingascended.admin_apple");
         power("duplication_core", "tooltip.craftingascended.duplication_core");
         flight("void_armor");
+        special("bridge_builder", new BridgeBuilderItem(new Item.Properties()));
     }
 
     private static void power(String name, String tooltipKey) {
@@ -131,6 +159,10 @@ public final class CraftingAscendedFabric implements ModInitializer {
 
     private static void flight(String name) {
         Item item = new FlightItem(new Item.Properties());
+        POWER_ITEMS.put(name, Registry.register(BuiltInRegistries.ITEM, id(name), item));
+    }
+
+    private static void special(String name, Item item) {
         POWER_ITEMS.put(name, Registry.register(BuiltInRegistries.ITEM, id(name), item));
     }
 

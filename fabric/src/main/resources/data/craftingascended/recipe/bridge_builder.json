@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["IRI","PDP","ISI"],"key":{"I":{"item":"minecraft:iron_ingot"},"R":{"item":"minecraft:redstone"},"P":{"item":"minecraft:piston"},"D":{"item":"minecraft:dispenser"},"S":{"item":"minecraft:stick"}},"result":{"id":"craftingascended:bridge_builder","count":1}}

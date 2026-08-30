@@ -2,8 +2,10 @@ package com.crazycrafts.craftingascended;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -18,7 +20,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -45,7 +54,7 @@ public class PowerItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         if (!context.getLevel().isClientSide && context.getPlayer() != null) {
             BlockPos pos = context.getClickedPos();
-            int radius = power.equals("world_breaker") ? 2 : power.equals("chunk_pickaxe") ? 1 : 0;
+            int radius = power.equals("chunk_pickaxe") ? 1 : 0;
             if (power.equals("lumber_axe")) radius = 2;
             if (power.equals("vein_pickaxe")) radius = 1;
             if (radius > 0) {
@@ -64,7 +73,7 @@ public class PowerItem extends Item {
     private void activate(Level level, Player player) {
         AABB range = player.getBoundingBox().inflate(12);
         switch (power) {
-            case "ore_vacuum" -> level.getEntitiesOfClass(ItemEntity.class, range).forEach(entity -> pull(entity, player, 1.3));
+            case "ore_vacuum" -> vacuumOres(level, player);
             case "mob_magnet" -> level.getEntitiesOfClass(LivingEntity.class, range,
                     entity -> entity != player).forEach(entity -> pull(entity, player, 1.0));
             case "miners_boots" -> {
@@ -101,6 +110,7 @@ public class PowerItem extends Item {
                 effect(player, MobEffects.MOVEMENT_SPEED, 20 * 120, 3);
             }
             case "duplication_core" -> duplicate(player);
+            case "world_breaker" -> throwHammer(level, player);
             case "void_armor" -> {
                 effect(player, MobEffects.REGENERATION, 20 * 120, 2);
                 effect(player, MobEffects.DAMAGE_RESISTANCE, 20 * 120, 4);
@@ -111,6 +121,67 @@ public class PowerItem extends Item {
             case "auto_farmer" -> effect(player, MobEffects.LUCK, 20 * 60, 2);
             default -> { }
         }
+    }
+
+    private static void vacuumOres(Level level, Player player) {
+        if (!(level instanceof ServerLevel server)) return;
+        BlockPos center = player.blockPosition();
+        int radius = 6;
+        int collected = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-radius, -radius, -radius), center.offset(radius, radius, radius))) {
+            BlockState state = server.getBlockState(pos);
+            if (!isOre(state) || center.distSqr(pos) > radius * radius) continue;
+            collected += collectBlock(server, pos.immutable(), player, false);
+        }
+        player.displayClientMessage(Component.literal("Ore Vacuum collected " + collected + " stacks."), true);
+    }
+
+    private static void throwHammer(Level level, Player player) {
+        if (!(level instanceof ServerLevel server)) return;
+        HitResult hit = player.pick(48.0, 1.0F, false);
+        if (!(hit instanceof BlockHitResult blockHit)) {
+            player.displayClientMessage(Component.literal("The hammer found no target."), true);
+            return;
+        }
+        BlockPos impact = blockHit.getBlockPos();
+        for (BlockPos pos : BlockPos.betweenClosed(impact.offset(-2, -2, -2), impact.offset(2, 2, 2))) {
+            BlockState state = server.getBlockState(pos);
+            if (state.isAir() || state.getDestroySpeed(server, pos) < 0) continue;
+            if (isOre(state)) collectBlock(server, pos.immutable(), player, true);
+            else server.destroyBlock(pos, true, player);
+        }
+        server.explode(player, impact.getX() + 0.5, impact.getY() + 0.5, impact.getZ() + 0.5,
+                0.0F, Level.ExplosionInteraction.NONE);
+        player.displayClientMessage(Component.literal("World Breaker impact! Ores were auto-smelted."), true);
+    }
+
+    private static int collectBlock(ServerLevel level, BlockPos pos, Player player, boolean smelt) {
+        BlockState state = level.getBlockState(pos);
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        List<ItemStack> drops = Block.getDrops(state, level, pos, blockEntity, player, player.getMainHandItem());
+        level.removeBlock(pos, false);
+        int count = 0;
+        for (ItemStack drop : drops) {
+            ItemStack delivered = smelt ? smelt(level, drop) : drop;
+            if (!player.getInventory().add(delivered)) player.drop(delivered, false);
+            count++;
+        }
+        return count;
+    }
+
+    private static ItemStack smelt(ServerLevel level, ItemStack input) {
+        SingleRecipeInput recipeInput = new SingleRecipeInput(input.copyWithCount(1));
+        return level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, recipeInput, level)
+                .map(holder -> {
+                    ItemStack result = holder.value().assemble(recipeInput, level.registryAccess());
+                    result.setCount(result.getCount() * input.getCount());
+                    return result;
+                }).orElse(input);
+    }
+
+    private static boolean isOre(BlockState state) {
+        String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
+        return path.endsWith("_ore") || path.equals("ancient_debris");
     }
 
     private static void pull(Entity entity, Player player, double speed) {
